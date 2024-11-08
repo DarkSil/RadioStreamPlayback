@@ -5,6 +5,6 @@ import com.sli.radiostreamplayback.base.Reason
 
 data class MainState(
     override val error: Reason? = null,
-    override val progress: Boolean? = null,
+    override val progress: Boolean = false,
     val radioList: RadioList? = null
 ) : BaseState

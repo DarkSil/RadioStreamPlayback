@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Radio Stream Playback</string>
+
+    <!-- WCAG Strings -->
+    <string name="sort">Sort</string>
+    <string name="radio_station_logo_image">Radio station logo image</string>
+    <string name="listen">Listen</string>
 </resources>

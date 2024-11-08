@@ -22,25 +22,24 @@ class MainMenuViewModel @Inject constructor(
     private val listOfStations = MutableLiveData<MainState>()
 
     fun getListOfStations() : LiveData<MainState> {
-        if (listOfStations.value == null) {
-            listOfStations.value = MainState(progress = true)
+        listOfStations.value = MainState(progress = true)
 
-            mainModel.getRadioList().enqueue(object : Callback<RadioList> {
-                override fun onResponse(request: Call<RadioList>, response: Response<RadioList>) {
+        mainModel.getRadioList().enqueue(object : Callback<RadioList> {
+            override fun onResponse(request: Call<RadioList>, response: Response<RadioList>) {
 
-                    val radioList = response.body()
-                    if (response.isSuccessful && radioList != null) {
-                        listOfStations.value = MainState(radioList = radioList)
-                    } else {
-                        throwError()
-                    }
+                val radioList = response.body()
+                if (response.isSuccessful && radioList != null) {
+                    listOfStations.value = MainState(radioList = radioList)
+                } else {
+                    throwError()
                 }
+            }
 
-                override fun onFailure(request: Call<RadioList>, throwable: Throwable) {
-                    throwError(Reason.Internet)
-                }
-            })
-        }
+            override fun onFailure(request: Call<RadioList>, throwable: Throwable) {
+                throwError(Reason.Internet)
+            }
+        })
+
         return listOfStations
     }
 
@@ -55,7 +54,5 @@ class MainMenuViewModel @Inject constructor(
     private fun throwError(reason: Reason? = null) {
         listOfStations.value = MainState(error = reason ?: Reason.Unknown)
     }
-
-    // TODO fun updateListOfStations()
 
 }
