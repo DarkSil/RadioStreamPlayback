@@ -3,9 +3,12 @@ package com.sli.radiostreamplayback.main.presentation
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.sli.radiostreamplayback.main.model.ApiService
+import com.sli.radiostreamplayback.base.Reason
+import com.sli.radiostreamplayback.main.model.MainModel
+import com.sli.radiostreamplayback.main.model.MainState
+import com.sli.radiostreamplayback.main.model.RadioList
+import com.sli.radiostreamplayback.main.model.SortType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -13,24 +16,44 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainMenuViewModel @Inject constructor(
-    private val apiService: ApiService
+    private val mainModel: MainModel
 ) : ViewModel() {
 
-    private val listOfStations = MutableLiveData<String>()
+    private val listOfStations = MutableLiveData<MainState>()
 
-    fun getListOfStations() : LiveData<String> {
+    fun getListOfStations() : LiveData<MainState> {
         if (listOfStations.value == null) {
-            apiService.listOfStations().enqueue(object : Callback<ResponseBody> {
-                override fun onResponse(p0: Call<ResponseBody>, p1: Response<ResponseBody>) {
-                    listOfStations.value = "RESPONSE ${p1.body()?.string()}"
+            listOfStations.value = MainState(progress = true)
+
+            mainModel.getRadioList().enqueue(object : Callback<RadioList> {
+                override fun onResponse(request: Call<RadioList>, response: Response<RadioList>) {
+
+                    val radioList = response.body()
+                    if (response.isSuccessful && radioList != null) {
+                        listOfStations.value = MainState(radioList = radioList)
+                    } else {
+                        throwError()
+                    }
                 }
 
-                override fun onFailure(p0: Call<ResponseBody>, p1: Throwable) {
-                    listOfStations.value = "FAIl"
+                override fun onFailure(request: Call<RadioList>, throwable: Throwable) {
+                    throwError(Reason.Internet)
                 }
             })
         }
         return listOfStations
+    }
+
+    fun getSortedListBy(sortType: SortType, tags: List<String>? = null) : List<RadioList> {
+        val sortedList = arrayListOf<RadioList>()
+        listOfStations.value?.radioList?.let {
+            mainModel.sortListBy(it.radioList, sortType, tags)
+        }
+        return sortedList
+    }
+
+    private fun throwError(reason: Reason? = null) {
+        listOfStations.value = MainState(error = reason ?: Reason.Unknown)
     }
 
     // TODO fun updateListOfStations()

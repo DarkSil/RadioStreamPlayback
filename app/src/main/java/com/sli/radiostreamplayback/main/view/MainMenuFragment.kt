@@ -28,7 +28,17 @@ class MainMenuFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.getListOfStations().observe(viewLifecycleOwner) { list ->
-            println(list)
+            list.radioList?.let {
+
+            }
+
+            list.error?.let {
+
+            }
+
+            list?.progress?.let {
+
+            }
         }
     }
 
