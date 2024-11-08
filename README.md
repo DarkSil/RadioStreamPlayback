@@ -1,3 +1,4 @@
+<pre>
 Radio Playback App
 TuneIn's test task
 
@@ -18,3 +19,4 @@ JUnit - Core testing library
 Mockito - Mocking library
 MockWebServer - Retrofit testing library
 Robolectric - Running tests with JVM
+</pre>
