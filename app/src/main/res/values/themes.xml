@@ -31,9 +31,24 @@
     <style name="Button.Regular" parent="Text.Bold">
         <item name="android:textColor">@color/background</item>
         <item name="android:textAllCaps">true</item>
-        <item name="android:background">@drawable/button_rectangle_background</item>
+        <item name="android:background">@drawable/button_rounded_background</item>
         <item name="android:backgroundTint">@color/special</item>
         <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="CustomBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/CustomBottomSheetStyle</item>
+    </style>
+
+    <style name="CustomBottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="Chip.Custom" parent="Widget.MaterialComponents.Chip.Filter">
+        <item name="android:backgroundTint">@color/chip_color_selector</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/anonymous_pro</item>
     </style>
 
 </resources>

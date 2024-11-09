@@ -7,7 +7,11 @@ import com.sli.radiostreamplayback.base.Reason
 import com.sli.radiostreamplayback.main.model.MainModel
 import com.sli.radiostreamplayback.main.model.MainState
 import com.sli.radiostreamplayback.main.model.RadioList
+import com.sli.radiostreamplayback.main.model.RadioStation
+import com.sli.radiostreamplayback.main.model.SortResults
 import com.sli.radiostreamplayback.main.model.SortType
+import com.sli.radiostreamplayback.main.model.Tag
+import com.sli.radiostreamplayback.main.model.TagsList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import retrofit2.Call
 import retrofit2.Callback
@@ -20,6 +24,11 @@ class MainMenuViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val listOfStations = MutableLiveData<MainState>()
+    var tagsList: TagsList = TagsList(emptyList())
+        private set
+    var selectedSortType: SortType = SortType.NAME
+        private set
+
 
     fun getListOfStations() : LiveData<MainState> {
         listOfStations.value = MainState(progress = true)
@@ -29,7 +38,13 @@ class MainMenuViewModel @Inject constructor(
 
                 val radioList = response.body()
                 if (response.isSuccessful && radioList != null) {
-                    listOfStations.value = MainState(radioList = radioList)
+                    tagsList = TagsList(radioList.getTags().map { Tag(it, false) })
+
+                    val filteredList = getFilteredListByTags(tagsList, radioList.radioList)
+                    val sortedList = getSortedListBy(selectedSortType, filteredList)
+                    listOfStations.value = MainState(
+                        radioList = radioList.copy(radioList = sortedList)
+                    )
                 } else {
                     throwError()
                 }
@@ -43,11 +58,35 @@ class MainMenuViewModel @Inject constructor(
         return listOfStations
     }
 
-    fun getSortedListBy(sortType: SortType, tags: List<String>? = null) : List<RadioList> {
-        val sortedList = arrayListOf<RadioList>()
-        listOfStations.value?.radioList?.let {
-            mainModel.sortListBy(it.radioList, sortType, tags)
+    fun getSortedListBy(sortType: SortType, list: List<RadioStation>? = null) : List<RadioStation> {
+        val sortedList = arrayListOf<RadioStation>()
+        val selectedList = list ?: listOfStations.value?.radioList?.radioList
+        selectedList?.let {
+            sortedList.addAll(mainModel.sortListBy(it, sortType))
         }
+        selectedSortType = sortType
+        return sortedList
+    }
+
+    fun getFilteredListByTags(tags: TagsList, list: List<RadioStation>? = null): List<RadioStation> {
+        tagsList = tags
+        /*tagsList.tagsList.forEach { it.isSelected = false }
+        tagsList.tagsList.filter { tag -> tags.tagsList.any { tag.tag == it.tag && it.isSelected } }
+            .forEach {
+                it.isSelected = true
+            }*/
+
+        val filteredList = arrayListOf<RadioStation>()
+        val selectedList = list ?: listOfStations.value?.radioList?.radioList
+        selectedList?.let {
+            filteredList.addAll(mainModel.filterListByTags(it, tags))
+        }
+        return filteredList
+    }
+
+    fun getUpdatedList(sortResults: SortResults) : List<RadioStation> {
+        val filteredList = getFilteredListByTags(sortResults.tags)
+        val sortedList = getSortedListBy(sortResults.sortType, filteredList)
         return sortedList
     }
 

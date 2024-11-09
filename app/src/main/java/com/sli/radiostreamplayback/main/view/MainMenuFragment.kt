@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -12,6 +13,8 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sli.radiostreamplayback.databinding.MainMenuFragmentBinding
 import com.sli.radiostreamplayback.main.presentation.MainMenuViewModel
+import com.sli.radiostreamplayback.main.presentation.SortViewModel.Companion.TAGS_KEY
+import com.sli.radiostreamplayback.main.presentation.SortViewModel.Companion.TYPE_KEY
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -46,6 +49,7 @@ class MainMenuFragment : Fragment() {
             }
         }
     }
+    // TODO Implement refresh feature
 
     private fun setupLayout() {
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -60,6 +64,21 @@ class MainMenuFragment : Fragment() {
             Toast.makeText(requireContext(), station.name, Toast.LENGTH_LONG).show()
             // TODO Navigate further with item
         }
+
+        binding.imageSort.setOnClickListener {
+            val fragment = SortFragment()
+            fragment.arguments = bundleOf(
+                TYPE_KEY to viewModel.selectedSortType.ordinal,
+                TAGS_KEY to viewModel.tagsList
+            )
+            fragment
+                .addSelectedListener { sortResults ->
+                    adapter.setList(viewModel.getUpdatedList(sortResults))
+                }
+                .show(parentFragmentManager, "SORT")
+        }
+
+        binding.linearProgress.setOnClickListener {}
     }
 
 }

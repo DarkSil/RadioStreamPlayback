@@ -38,19 +38,13 @@ class StationsAdapter : Adapter<StationViewHolder>() {
 
     fun setList(list: List<RadioStation>) {
         val size = this.list.size
-        val savedItems = this.list.toList()
 
         this.list.clear()
         this.list.addAll(list)
-        this.list.forEachIndexed { index, item ->
-            val oldItem = savedItems.find { it.id == item.id }
-            if (oldItem != null) {
-                notifyItemMoved(savedItems.indexOf(oldItem), index)
-            } else {
-                notifyItemChanged(index)
-            }
-        }
 
+        // TODO Make it smooth and beautiful
+
+        notifyItemRangeChanged(0, list.size)
         notifyItemRangeRemoved(list.size, size - list.size)
     }
 

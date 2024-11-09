@@ -1,8 +1,18 @@
 <resources>
     <string name="app_name">Radio Stream Playback</string>
+    <string name="listen">Listen</string>
+    <string name="sort_amp_filter">Sort &amp; Filter</string>
+    <string name="sort_by">Sort by</string>
+    <string name="apply">Apply</string>
+
+    <!-- Sort items -->
+    <string name="filter_name">Name</string>
+    <string name="filter_reliability_asc">Reliability ↓</string>
+    <string name="filter_reliability_desc">Reliability ↑</string>
+    <string name="filter_popularity_asc">Popularity ↓</string>
+    <string name="filter_popularity_desc">Popularity ↑</string>
 
     <!-- WCAG Strings -->
-    <string name="sort">Sort</string>
     <string name="radio_station_logo_image">Radio station logo image</string>
-    <string name="listen">Listen</string>
+    <string name="close">Close</string>
 </resources>
