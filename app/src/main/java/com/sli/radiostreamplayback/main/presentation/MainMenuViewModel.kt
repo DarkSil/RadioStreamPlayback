@@ -60,7 +60,7 @@ class MainMenuViewModel @Inject constructor(
         return listOfStations
     }
 
-    fun updateListOfStations() {
+    fun reloadListOfStations() {
         listOfStations.value = MainState()
         getListOfStations()
     }

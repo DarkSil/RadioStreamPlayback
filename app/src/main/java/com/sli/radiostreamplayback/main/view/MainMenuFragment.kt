@@ -10,7 +10,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.sli.radiostreamplayback.R
 import com.sli.radiostreamplayback.base.BaseActivity
+import com.sli.radiostreamplayback.base.BaseErrorDialog
+import com.sli.radiostreamplayback.base.Reason
 import com.sli.radiostreamplayback.databinding.MainMenuFragmentBinding
 import com.sli.radiostreamplayback.main.presentation.MainMenuViewModel
 import com.sli.radiostreamplayback.main.presentation.SortViewModel.Companion.TAGS_KEY
@@ -48,11 +51,28 @@ class MainMenuFragment : Fragment() {
             }
 
             state.error?.let {
-                // TODO Show a specified error
+                val label = when (it) {
+                    Reason.Internet -> getString(R.string.internet_error)
+                    Reason.Unknown -> null
+                    is Reason.Specified -> null
+                }
+
+                BaseErrorDialog.Builder()
+                    .setLabel(label)
+                    .setError(it.reason)
+                    .setButtonText(getString(R.string.try_again))
+                    .setIsCancelable(false)
+                    .setButtonListener { dialog ->
+                        viewModel.reloadListOfStations()
+                        dialog.dismiss()
+                    }
+                    .build()
+                    .show(parentFragmentManager, "ERROR")
             }
         }
     }
-    // TODO Implement refresh feature
+
+    // TODO Hande HTTP connection, decide if I need this to support
 
     private fun setupLayout() {
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())

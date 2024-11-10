@@ -3,13 +3,13 @@ package com.sli.radiostreamplayback
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.FragmentContainerView
 import com.sli.radiostreamplayback.base.BaseActivity
+import com.sli.radiostreamplayback.base.BaseErrorDialog
 import com.sli.radiostreamplayback.databinding.ActivityMainBinding
 import com.sli.radiostreamplayback.main.model.RadioStation
 import com.sli.radiostreamplayback.playback.model.PlaybackStateHolder
@@ -35,9 +35,12 @@ class MainActivity : BaseActivity() {
             insets
         }
 
-        PlaybackStateHolder.isActivityAlive = true
-
         checkForDeeplink(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        PlaybackStateHolder.isActivityAlive = true
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -65,8 +68,12 @@ class MainActivity : BaseActivity() {
 
             navigateTo(fragment, PLAYBACK_TAG)
         } else if (intent.action == ServiceAction.ERROR.action) {
-            val text = intent.extras?.getString(ServiceAction.ERROR.key) ?: getString(R.string.oops)
-            Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+            val text = intent.extras?.getString(ServiceAction.ERROR.key)
+            BaseErrorDialog.Builder()
+                .setError(text)
+                .setIsCancelable(true)
+                .build()
+                .show(supportFragmentManager, "ERROR")
         }
     }
 

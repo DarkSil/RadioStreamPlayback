@@ -5,6 +5,9 @@
     <string name="sort_by">Sort by</string>
     <string name="apply">Apply</string>
     <string name="oops">Oops, something went wrong with your request</string>
+    <string name="error_description"><![CDATA[If this issue will persist for a while please let us know via <a href="mailto:slipokurov.illia@gmail.com">email</a>]]></string>
+    <string name="try_again">Try again</string>
+    <string name="internet_error">It looks like something wrong with your internet connection</string>
 
     <!-- Sort items -->
     <string name="filter_name">Name</string>
