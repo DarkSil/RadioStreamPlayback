@@ -8,6 +8,7 @@
     <string name="error_description"><![CDATA[If this issue will persist for a while please let us know via <a href="mailto:slipokurov.illia@gmail.com">email</a>]]></string>
     <string name="try_again">Try again</string>
     <string name="internet_error">It looks like something wrong with your internet connection</string>
+    <string name="currently_playing">Currently Playing:</string>
 
     <!-- Sort items -->
     <string name="filter_name">Name</string>
@@ -19,4 +20,5 @@
     <!-- WCAG Strings -->
     <string name="radio_station_logo_image">Radio station logo image</string>
     <string name="close">Close</string>
+    <string name="play_pause_button">Play Pause Button</string>
 </resources>

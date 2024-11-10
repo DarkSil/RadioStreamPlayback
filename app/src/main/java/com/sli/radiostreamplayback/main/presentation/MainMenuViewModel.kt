@@ -1,9 +1,12 @@
 package com.sli.radiostreamplayback.main.presentation
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import com.sli.radiostreamplayback.base.Reason
+import com.sli.radiostreamplayback.main.model.LastStationStatus
 import com.sli.radiostreamplayback.main.model.MainModel
 import com.sli.radiostreamplayback.main.model.MainState
 import com.sli.radiostreamplayback.main.model.RadioList
@@ -12,6 +15,7 @@ import com.sli.radiostreamplayback.main.model.SortResults
 import com.sli.radiostreamplayback.main.model.SortType
 import com.sli.radiostreamplayback.main.model.Tag
 import com.sli.radiostreamplayback.main.model.TagsList
+import com.sli.radiostreamplayback.utils.PlaybackStateUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import retrofit2.Call
 import retrofit2.Callback
@@ -94,6 +98,33 @@ class MainMenuViewModel @Inject constructor(
 
     private fun throwError(reason: Reason? = null) {
         listOfStations.value = MainState(error = reason ?: Reason.Unknown)
+    }
+
+    private val lastStationStatus = MutableLiveData<LastStationStatus>()
+    private val observer = Observer<RadioStation?> { radioStation ->
+        lastStationStatus.value = LastStationStatus(
+            radioStation ?: lastStationStatus.value?.radioStation,
+            radioStation != null
+        )
+    }
+
+    fun getLastStationStatus() : LiveData<LastStationStatus> {
+        PlaybackStateUtils.observePlaybackStatus(observer)
+        return lastStationStatus
+    }
+
+    fun performPlayPause(radioStation: RadioStation, context: Context) {
+        val shouldPlay = lastStationStatus.value?.isPlaying != true
+        PlaybackStateUtils.sendActionToService(
+            shouldPlay,
+            context,
+            radioStation
+        )
+    }
+
+    override fun onCleared() {
+        PlaybackStateUtils.removeObserver(observer)
+        super.onCleared()
     }
 
 }
