@@ -100,6 +100,8 @@ class RadioService : Service() {
                     .setMediaSession(mediaSession?.sessionToken)
                     .setShowActionsInCompactView(0, 1)
             )
+            // Prevent older versions notification removal by swipe
+            .setOngoing(true)
 
         val contentText = if (currentStationPlayed != null) currentStationPlayed?.name else "radio"
 
