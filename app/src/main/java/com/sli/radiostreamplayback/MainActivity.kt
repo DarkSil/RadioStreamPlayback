@@ -3,6 +3,7 @@ package com.sli.radiostreamplayback
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
@@ -11,7 +12,8 @@ import androidx.fragment.app.FragmentContainerView
 import com.sli.radiostreamplayback.base.BaseActivity
 import com.sli.radiostreamplayback.databinding.ActivityMainBinding
 import com.sli.radiostreamplayback.main.model.RadioStation
-import com.sli.radiostreamplayback.playback.model.RadioService
+import com.sli.radiostreamplayback.playback.model.PlaybackStateHolder
+import com.sli.radiostreamplayback.playback.model.ServiceAction
 import com.sli.radiostreamplayback.playback.view.PlaybackFragment
 import com.sli.radiostreamplayback.playback.view.PlaybackFragment.Companion.PLAYBACK_TAG
 import com.sli.radiostreamplayback.playback.view.PlaybackFragment.Companion.RADIO_ITEM
@@ -33,6 +35,8 @@ class MainActivity : BaseActivity() {
             insets
         }
 
+        PlaybackStateHolder.isActivityAlive = true
+
         checkForDeeplink(intent)
     }
 
@@ -42,7 +46,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun checkForDeeplink(intent: Intent) {
-        if (intent.action == RadioService.ACTION_OPEN && intent.extras != null) {
+        if (intent.action == ServiceAction.OPEN.action && intent.extras != null) {
 
             val radioStation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 intent.extras?.getSerializable(RADIO_ITEM, RadioStation::class.java)
@@ -60,6 +64,14 @@ class MainActivity : BaseActivity() {
             fragment.arguments = bundleOf(RADIO_ITEM to radioStation)
 
             navigateTo(fragment, PLAYBACK_TAG)
+        } else if (intent.action == ServiceAction.ERROR.action) {
+            val text = intent.extras?.getString(ServiceAction.ERROR.key) ?: getString(R.string.oops)
+            Toast.makeText(this, text, Toast.LENGTH_LONG).show()
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        PlaybackStateHolder.isActivityAlive = false
     }
 }

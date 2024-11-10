@@ -4,6 +4,7 @@
     <string name="sort_amp_filter">Sort &amp; Filter</string>
     <string name="sort_by">Sort by</string>
     <string name="apply">Apply</string>
+    <string name="oops">Oops, something went wrong with your request</string>
 
     <!-- Sort items -->
     <string name="filter_name">Name</string>

@@ -16,9 +16,12 @@ import android.view.KeyEvent
 import androidx.core.app.NotificationCompat
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.sli.radiostreamplayback.MainActivity
 import com.sli.radiostreamplayback.R
+import com.sli.radiostreamplayback.main.model.RadioStation
+import com.sli.radiostreamplayback.playback.view.PlaybackFragment.Companion.RADIO_ITEM
 
 class RadioService : Service() {
 
@@ -27,12 +30,9 @@ class RadioService : Service() {
     private var exoPlayer: ExoPlayer? = null
     private var mediaSession: MediaSessionCompat? = null
     private var audioManager: AudioManager? = null
+    private var currentStationPlayed: RadioStation? = null
 
     companion object {
-        const val ACTION_PLAY = "com.sli.radiostreamplayback.ACTION_PLAY"
-        const val ACTION_PAUSE = "com.sli.radiostreamplayback.ACTION_PAUSE"
-        const val ACTION_STOP = "com.sli.radiostreamplayback.ACTION_STOP"
-        const val ACTION_OPEN = "com.sli.radiostreamplayback.ACTION_OPEN"
         const val CHANNEL_ID = "RadioChannel"
         const val NOTIFICATION_ID = 1
     }
@@ -78,21 +78,18 @@ class RadioService : Service() {
     // Still using custom images and actions to support Android 12 and lower version devices
     private fun getPlayPauseAction() : NotificationCompat.Action {
         return if (exoPlayer?.isPlaying == true) {
-            notificationAction(R.drawable.ic_pause, "Pause", ACTION_PAUSE)
+            notificationAction(R.drawable.ic_pause, "Pause", ServiceAction.PAUSE.action)
         } else {
-            notificationAction(R.drawable.ic_play, "Play", ACTION_PLAY)
+            notificationAction(R.drawable.ic_play, "Play", ServiceAction.PLAY.action)
         }
     }
 
     private fun createNotification(): Notification {
         val playPauseAction = getPlayPauseAction()
+        val closeAction = notificationAction(R.drawable.ic_close, "Stop", ServiceAction.STOP.action)
 
-        val closeAction = notificationAction(R.drawable.ic_close, "Stop", ACTION_STOP)
-
-        //TODO Add station name and image
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Radio Stream Playback")
-            .setContentText("Playing STATION")
             .setSmallIcon(R.drawable.ic_radio)
             .setContentIntent(getActivityPendingIntent())
             .setDeleteIntent(getNotificationDeletedIntent())
@@ -103,7 +100,10 @@ class RadioService : Service() {
                     .setMediaSession(mediaSession?.sessionToken)
                     .setShowActionsInCompactView(0, 1)
             )
-            .setOngoing(true)
+
+        val contentText = if (currentStationPlayed != null) currentStationPlayed?.name else "radio"
+
+        notificationBuilder.setContentText("Playing $contentText station")
 
         return notificationBuilder.build()
     }
@@ -121,13 +121,15 @@ class RadioService : Service() {
         return NotificationCompat.Action(iconResId, title, pendingIntent)
     }
 
+
+    // It is not working for Android 12+ but still needs to be here for earlier versions
     private fun getNotificationDeletedIntent(): PendingIntent {
         val intent = Intent(this, NotificationActionReceiver::class.java).apply {
-            this.action = ACTION_STOP
+            this.action = ServiceAction.STOP.action
         }
         return PendingIntent.getBroadcast(
             this,
-            ACTION_STOP.hashCode(),
+            ServiceAction.STOP.action.hashCode(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -159,14 +161,16 @@ class RadioService : Service() {
 
     private fun handleIntent(intent: Intent?) {
         when (intent?.action) {
-            ACTION_PLAY -> playStream()
-            ACTION_PAUSE -> pauseStream()
-            ACTION_STOP -> stopPlayback()
-            else -> playStream()
+            ServiceAction.PLAY.action -> playStream(intent)
+            ServiceAction.PAUSE.action -> pauseStream()
+            ServiceAction.STOP.action -> stopPlayback()
+            else -> playStream(intent)
         }
     }
 
     private fun stopPlayback() {
+        PlaybackStateHolder.liveStationNow.value = null
+
         exoPlayer?.stop()
         exoPlayer?.clearMediaItems()
 
@@ -174,21 +178,42 @@ class RadioService : Service() {
         stopSelf()
     }
 
-    private fun playStream() {
+    private fun playStream(intent: Intent? = null) {
         val result = audioManager?.requestAudioFocus(audioFocusChangeListener,
             AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
 
+        // Handling other media streams from other apps
         if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            // TODO Set link programmatically
-            val mediaItem = MediaItem.fromUri("https://c2.prostream365.com:8000/live")
-            exoPlayer?.setMediaItem(mediaItem)
-            exoPlayer?.prepare()
-            exoPlayer?.play()
-            updateNotification()
+
+            currentStationPlayed = if (intent != null) {
+                val newStation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    intent.extras?.getSerializable(RADIO_ITEM, RadioStation::class.java)
+                } else {
+                    intent.extras?.getSerializable(RADIO_ITEM)
+                }
+
+                if (newStation != null && newStation is RadioStation) {
+                    newStation
+                } else {
+                    currentStationPlayed
+                }
+            } else {
+                currentStationPlayed
+            }
+
+            currentStationPlayed?.let { currentStation ->
+                PlaybackStateHolder.liveStationNow.value = currentStation
+                val mediaItem = MediaItem.fromUri(currentStation.streamUrl)
+                exoPlayer?.setMediaItem(mediaItem)
+                exoPlayer?.prepare()
+                exoPlayer?.play()
+                updateNotification()
+            }
         }
     }
 
     private fun pauseStream() {
+        PlaybackStateHolder.liveStationNow.value = null
         exoPlayer?.pause()
         updateNotification()
     }
@@ -230,9 +255,30 @@ class RadioService : Service() {
             )
             updateNotification()
         }
+
+        override fun onPlayerError(error: PlaybackException) {
+            super.onPlayerError(error)
+            pauseStream()
+
+            if (PlaybackStateHolder.isActivityAlive) {
+                val intent = Intent(applicationContext, MainActivity::class.java).apply {
+                    this.action = ServiceAction.ERROR.action
+                    this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    putExtra(ServiceAction.ERROR.key, error.message)
+                }
+
+                startActivity(intent)
+            } else {
+                // I wanted to notify user somehow but on Android 15 there is no way to show
+                // something on screen and I don't really like the idea of changing notification's
+                // text since it is not a proper "notification" of user and may be not seen at all
+                // I have tested YouTube in such scenario and it's just stops, so I will leave it as is
+                /*val text = error.message ?: getString(R.string.oops)
+                updateNotification(text)*/
+            }
+        }
     }
 
-    // TODO Add some variable to handle App's UI
     private val mediaSessionCallback = object : MediaSessionCompat.Callback() {
         override fun onPlay() {
             playStream()
