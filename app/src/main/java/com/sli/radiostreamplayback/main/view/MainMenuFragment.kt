@@ -72,8 +72,6 @@ class MainMenuFragment : Fragment() {
         }
     }
 
-    // TODO Hande HTTP connection, decide if I need this to support
-
     private fun setupLayout() {
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
