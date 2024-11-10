@@ -1,17 +1,27 @@
 package com.sli.radiostreamplayback
 
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.FragmentContainerView
+import com.sli.radiostreamplayback.base.BaseActivity
 import com.sli.radiostreamplayback.databinding.ActivityMainBinding
+import com.sli.radiostreamplayback.main.model.RadioStation
+import com.sli.radiostreamplayback.playback.model.RadioService
+import com.sli.radiostreamplayback.playback.view.PlaybackFragment
+import com.sli.radiostreamplayback.playback.view.PlaybackFragment.Companion.PLAYBACK_TAG
+import com.sli.radiostreamplayback.playback.view.PlaybackFragment.Companion.RADIO_ITEM
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
-    private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    override val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    override val fragmentContainerView: FragmentContainerView by lazy { binding.fragmentContainerView }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +31,35 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        checkForDeeplink(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        checkForDeeplink(intent)
+    }
+
+    private fun checkForDeeplink(intent: Intent) {
+        if (intent.action == RadioService.ACTION_OPEN && intent.extras != null) {
+
+            val radioStation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.extras?.getSerializable(RADIO_ITEM, RadioStation::class.java)
+            } else {
+                intent.extras?.getSerializable(RADIO_ITEM)
+            }
+
+            if (radioStation == null || radioStation !is RadioStation) {
+                return
+            }
+
+            supportFragmentManager.popBackStack()
+
+            val fragment = PlaybackFragment()
+            fragment.arguments = bundleOf(RADIO_ITEM to radioStation)
+
+            navigateTo(fragment, PLAYBACK_TAG)
         }
     }
 }

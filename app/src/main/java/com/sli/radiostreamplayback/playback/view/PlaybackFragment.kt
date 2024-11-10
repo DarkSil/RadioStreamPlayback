@@ -12,6 +12,11 @@ import com.sli.radiostreamplayback.playback.model.RadioService
 
 class PlaybackFragment : Fragment() {
 
+    companion object {
+        const val PLAYBACK_TAG = "PLAYBACK"
+        const val RADIO_ITEM = "RADIO_ITEM"
+    }
+
     private val binding by lazy { PlaybackFragmentBinding.inflate(layoutInflater) }
 
     override fun onCreateView(

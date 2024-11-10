@@ -1,5 +1,7 @@
 package com.sli.radiostreamplayback.main.model
 
+import java.io.Serializable
+
 data class RadioStation(
     val id : String,
     val description : String,
@@ -9,4 +11,4 @@ data class RadioStation(
     val reliability : Int,
     val popularity : Float,
     val tags : List<String>
-)
+) : Serializable

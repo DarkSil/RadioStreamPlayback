@@ -32,6 +32,7 @@ class RadioService : Service() {
         const val ACTION_PLAY = "com.sli.radiostreamplayback.ACTION_PLAY"
         const val ACTION_PAUSE = "com.sli.radiostreamplayback.ACTION_PAUSE"
         const val ACTION_STOP = "com.sli.radiostreamplayback.ACTION_STOP"
+        const val ACTION_OPEN = "com.sli.radiostreamplayback.ACTION_OPEN"
         const val CHANNEL_ID = "RadioChannel"
         const val NOTIFICATION_ID = 1
     }

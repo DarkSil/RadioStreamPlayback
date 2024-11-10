@@ -11,11 +11,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.sli.radiostreamplayback.base.BaseActivity
 import com.sli.radiostreamplayback.databinding.MainMenuFragmentBinding
 import com.sli.radiostreamplayback.main.presentation.MainMenuViewModel
 import com.sli.radiostreamplayback.main.presentation.SortViewModel.Companion.TAGS_KEY
 import com.sli.radiostreamplayback.main.presentation.SortViewModel.Companion.TYPE_KEY
 import com.sli.radiostreamplayback.playback.view.PlaybackFragment
+import com.sli.radiostreamplayback.playback.view.PlaybackFragment.Companion.PLAYBACK_TAG
+import com.sli.radiostreamplayback.playback.view.PlaybackFragment.Companion.RADIO_ITEM
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -63,10 +66,10 @@ class MainMenuFragment : Fragment() {
         )
         adapter.setOnItemClickListener { station ->
             Toast.makeText(requireContext(), station.name, Toast.LENGTH_LONG).show()
-            parentFragmentManager.beginTransaction()
-                .add(PlaybackFragment(), "Playback")
-                .commit()
-            // TODO Navigate further with item
+
+            val fragment = PlaybackFragment()
+            fragment.arguments = bundleOf(RADIO_ITEM to station)
+            (requireActivity() as BaseActivity).navigateTo(fragment, PLAYBACK_TAG)
         }
 
         binding.imageSort.setOnClickListener {
