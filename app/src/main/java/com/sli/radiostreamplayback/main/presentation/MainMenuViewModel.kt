@@ -122,6 +122,20 @@ class MainMenuViewModel @Inject constructor(
         )
     }
 
+    fun performStationPlay(radioStation: RadioStation, context: Context) {
+        if (lastStationStatus.value?.radioStation == radioStation) {
+            if (lastStationStatus.value?.isPlaying != true) {
+                performPlayPause(radioStation, context)
+            }
+        } else {
+            PlaybackStateUtils.sendActionToService(
+                true,
+                context,
+                radioStation
+            )
+        }
+    }
+
     override fun onCleared() {
         PlaybackStateUtils.removeObserver(observer)
         super.onCleared()

@@ -22,4 +22,8 @@ class StationViewHolder(private val binding: MainMenuItemBinding) : ViewHolder(b
         binding.root.setOnClickListener(listener)
     }
 
+    fun setListenClickListener(listener: OnClickListener) {
+        binding.buttonListen.setOnClickListener(listener)
+    }
+
 }

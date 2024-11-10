@@ -13,7 +13,8 @@ class StationsAdapter : Adapter<StationViewHolder>() {
     }
 
     private val list = arrayListOf<RadioStation>()
-    private var clickListener: ItemClickListener? = null
+    private var itemClickListener: ItemClickListener? = null
+    private var listenClickListener: ItemClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StationViewHolder {
         return StationViewHolder(
@@ -32,7 +33,12 @@ class StationsAdapter : Adapter<StationViewHolder>() {
     override fun onBindViewHolder(holder: StationViewHolder, position: Int) {
         holder.setItem(list[position])
         holder.setOnClickListener {
-            clickListener?.onItemClick(list[position])
+            itemClickListener?.onItemClick(list[position])
+        }
+        listenClickListener?.let { listener ->
+            holder.setListenClickListener {
+                listener.onItemClick(list[position])
+            }
         }
     }
 
@@ -49,6 +55,10 @@ class StationsAdapter : Adapter<StationViewHolder>() {
     }
 
     fun setOnItemClickListener(listener: ItemClickListener) {
-        clickListener = listener
+        itemClickListener = listener
+    }
+
+    fun setListenClickListener(listener: ItemClickListener) {
+        this.listenClickListener = listener
     }
 }

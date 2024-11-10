@@ -87,6 +87,9 @@ class MainMenuFragment : Fragment() {
         adapter.setOnItemClickListener { station ->
             navigateToPlayback(station)
         }
+        adapter.setListenClickListener { station ->
+            viewModel.performStationPlay(station, requireContext())
+        }
 
         binding.imageSort.setOnClickListener {
             val fragment = SortFragment()
