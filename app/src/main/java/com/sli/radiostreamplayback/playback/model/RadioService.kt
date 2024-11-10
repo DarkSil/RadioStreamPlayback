@@ -22,6 +22,7 @@ import com.sli.radiostreamplayback.MainActivity
 import com.sli.radiostreamplayback.R
 import com.sli.radiostreamplayback.main.model.RadioStation
 import com.sli.radiostreamplayback.playback.view.PlaybackFragment.Companion.RADIO_ITEM
+import com.sli.radiostreamplayback.utils.PlaybackStateUtils
 
 class RadioService : Service() {
 
@@ -171,7 +172,7 @@ class RadioService : Service() {
     }
 
     private fun stopPlayback() {
-        PlaybackStateHolder.liveStationNow.value = null
+        PlaybackStateUtils.liveStationNow.value = null
 
         exoPlayer?.stop()
         exoPlayer?.clearMediaItems()
@@ -204,7 +205,7 @@ class RadioService : Service() {
             }
 
             currentStationPlayed?.let { currentStation ->
-                PlaybackStateHolder.liveStationNow.value = currentStation
+                PlaybackStateUtils.liveStationNow.value = currentStation
                 val mediaItem = MediaItem.fromUri(currentStation.streamUrl)
                 exoPlayer?.setMediaItem(mediaItem)
                 exoPlayer?.prepare()
@@ -215,7 +216,7 @@ class RadioService : Service() {
     }
 
     private fun pauseStream() {
-        PlaybackStateHolder.liveStationNow.value = null
+        PlaybackStateUtils.liveStationNow.value = null
         exoPlayer?.pause()
         updateNotification()
     }
@@ -262,7 +263,7 @@ class RadioService : Service() {
             super.onPlayerError(error)
             pauseStream()
 
-            if (PlaybackStateHolder.isActivityAlive) {
+            if (PlaybackStateUtils.isActivityAlive) {
                 val intent = Intent(applicationContext, MainActivity::class.java).apply {
                     this.action = ServiceAction.ERROR.action
                     this.flags = Intent.FLAG_ACTIVITY_NEW_TASK

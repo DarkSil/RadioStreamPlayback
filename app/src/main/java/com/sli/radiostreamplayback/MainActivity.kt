@@ -12,11 +12,11 @@ import com.sli.radiostreamplayback.base.BaseActivity
 import com.sli.radiostreamplayback.base.BaseErrorDialog
 import com.sli.radiostreamplayback.databinding.ActivityMainBinding
 import com.sli.radiostreamplayback.main.model.RadioStation
-import com.sli.radiostreamplayback.playback.model.PlaybackStateHolder
 import com.sli.radiostreamplayback.playback.model.ServiceAction
 import com.sli.radiostreamplayback.playback.view.PlaybackFragment
 import com.sli.radiostreamplayback.playback.view.PlaybackFragment.Companion.PLAYBACK_TAG
 import com.sli.radiostreamplayback.playback.view.PlaybackFragment.Companion.RADIO_ITEM
+import com.sli.radiostreamplayback.utils.PlaybackStateUtils
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -40,7 +40,7 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        PlaybackStateHolder.isActivityAlive = true
+        PlaybackStateUtils.isActivityAlive = true
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -79,6 +79,6 @@ class MainActivity : BaseActivity() {
 
     override fun onPause() {
         super.onPause()
-        PlaybackStateHolder.isActivityAlive = false
+        PlaybackStateUtils.isActivityAlive = false
     }
 }
