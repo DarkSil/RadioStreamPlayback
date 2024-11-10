@@ -15,6 +15,7 @@ import com.sli.radiostreamplayback.databinding.MainMenuFragmentBinding
 import com.sli.radiostreamplayback.main.presentation.MainMenuViewModel
 import com.sli.radiostreamplayback.main.presentation.SortViewModel.Companion.TAGS_KEY
 import com.sli.radiostreamplayback.main.presentation.SortViewModel.Companion.TYPE_KEY
+import com.sli.radiostreamplayback.playback.view.PlaybackFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -62,6 +63,9 @@ class MainMenuFragment : Fragment() {
         )
         adapter.setOnItemClickListener { station ->
             Toast.makeText(requireContext(), station.name, Toast.LENGTH_LONG).show()
+            parentFragmentManager.beginTransaction()
+                .add(PlaybackFragment(), "Playback")
+                .commit()
             // TODO Navigate further with item
         }
 
