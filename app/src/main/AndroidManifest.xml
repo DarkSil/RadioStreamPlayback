@@ -25,7 +25,13 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleInstance">
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait">
+            <!-- I have hardcoded screen orientation since there is a weird behavior
+            occurs with BottomSheetDialog. In real case I'd decide to replace BottomSheetDialog
+            with some common fragment (or to find some other solution) but for now I have decided
+            to leave this as is -->
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
