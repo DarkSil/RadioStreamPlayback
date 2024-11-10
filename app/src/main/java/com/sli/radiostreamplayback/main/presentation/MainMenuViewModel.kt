@@ -31,31 +31,38 @@ class MainMenuViewModel @Inject constructor(
 
 
     fun getListOfStations() : LiveData<MainState> {
-        listOfStations.value = MainState(progress = true)
+        if (listOfStations.value?.radioList == null) {
+            listOfStations.value = MainState(progress = true)
 
-        mainModel.getRadioList().enqueue(object : Callback<RadioList> {
-            override fun onResponse(request: Call<RadioList>, response: Response<RadioList>) {
+            mainModel.getRadioList().enqueue(object : Callback<RadioList> {
+                override fun onResponse(request: Call<RadioList>, response: Response<RadioList>) {
 
-                val radioList = response.body()
-                if (response.isSuccessful && radioList != null) {
-                    tagsList = TagsList(radioList.getTags().map { Tag(it, false) })
+                    val radioList = response.body()
+                    if (response.isSuccessful && radioList != null) {
+                        tagsList = TagsList(radioList.getTags().map { Tag(it, false) })
 
-                    val filteredList = getFilteredListByTags(tagsList, radioList.radioList)
-                    val sortedList = getSortedListBy(selectedSortType, filteredList)
-                    listOfStations.value = MainState(
-                        radioList = radioList.copy(radioList = sortedList)
-                    )
-                } else {
-                    throwError()
+                        val filteredList = getFilteredListByTags(tagsList, radioList.radioList)
+                        val sortedList = getSortedListBy(selectedSortType, filteredList)
+                        listOfStations.value = MainState(
+                            radioList = radioList.copy(radioList = sortedList)
+                        )
+                    } else {
+                        throwError()
+                    }
                 }
-            }
 
-            override fun onFailure(request: Call<RadioList>, throwable: Throwable) {
-                throwError(Reason.Internet)
-            }
-        })
+                override fun onFailure(request: Call<RadioList>, throwable: Throwable) {
+                    throwError(Reason.Internet)
+                }
+            })
+        }
 
         return listOfStations
+    }
+
+    fun updateListOfStations() {
+        listOfStations.value = MainState()
+        getListOfStations()
     }
 
     fun getSortedListBy(sortType: SortType, list: List<RadioStation>? = null) : List<RadioStation> {
@@ -70,11 +77,6 @@ class MainMenuViewModel @Inject constructor(
 
     fun getFilteredListByTags(tags: TagsList, list: List<RadioStation>? = null): List<RadioStation> {
         tagsList = tags
-        /*tagsList.tagsList.forEach { it.isSelected = false }
-        tagsList.tagsList.filter { tag -> tags.tagsList.any { tag.tag == it.tag && it.isSelected } }
-            .forEach {
-                it.isSelected = true
-            }*/
 
         val filteredList = arrayListOf<RadioStation>()
         val selectedList = list ?: listOfStations.value?.radioList?.radioList
