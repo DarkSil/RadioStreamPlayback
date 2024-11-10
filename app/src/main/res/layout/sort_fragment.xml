@@ -57,6 +57,21 @@
         android:layout_marginTop="24dp"
         android:paddingBottom="36dp">
 
+        <!-- I moved button on top due to bad UX since on some devices
+        button is located under the screen and it is not clear for the user
+        that he should scroll down for the apply button -->
+
+        <TextView
+            android:id="@+id/buttonApply"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/apply"
+            style="@style/Button.Regular"
+            android:gravity="center"
+            android:textSize="24sp"
+            android:paddingVertical="8dp"
+            android:layout_marginBottom="24dp"/>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -85,17 +100,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"/>
-
-        <TextView
-            android:id="@+id/buttonApply"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/apply"
-            style="@style/Button.Regular"
-            android:gravity="center"
-            android:textSize="24sp"
-            android:paddingVertical="8dp"
-            android:layout_marginTop="24dp"/>
 
     </LinearLayout>
 
