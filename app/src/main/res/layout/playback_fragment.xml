@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/background"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp">
+
+    <ImageView
+        android:id="@+id/imageClose"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_close"
+        android:layout_gravity="end"
+        android:layout_marginTop="16dp"
+        android:contentDescription="@string/close"
+        app:tint="@color/white"/>
+
+    <ImageView
+        android:id="@+id/imageLogo"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:src="@color/foreground"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginVertical="50dp"
+        android:contentDescription="@string/radio_station_logo_image"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/textName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Text.Naming"
+            tools:text="Name of station"
+            android:gravity="center"
+            android:textIsSelectable="true"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="16dp"
+            android:scrollbars="none">
+
+            <TextView
+                android:id="@+id/textDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Text.Description"
+                tools:text="Description of station\nDescription of station\nDescription of station\nDescription of station\nDescription of station\nDescription of station\nDescription of station\nDescription of station\nDescription of station\nDescription of station\nDescription of station\nDescription of station\nDescription of station\nDescription of station"
+                android:gravity="center"
+                android:textIsSelectable="true"/>
+
+        </ScrollView>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imagePlayPause"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:background="@drawable/button_circle_background"
+        android:backgroundTint="@color/white"
+        app:tint="@color/foreground"
+        android:scaleType="fitCenter"
+        android:padding="25dp"
+        android:layout_marginVertical="32dp"
+        tools:src="@drawable/ic_play"
+        android:contentDescription="@string/play_pause_button"/>
+
+</LinearLayout>
